@@ -9,3 +9,4 @@ torchvision
 tensorboardX
 azure-storage-blob
 pandas
+numpy
