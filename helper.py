@@ -47,7 +47,7 @@ def get_model_from_az_storage():
 
     model = torch.load(os.path.join(tempfile.gettempdir(),
                                    model_path), map_location=torch.device('cpu'))
-    model.load_state_dict(checkpoint['state_dict'])
+    model.load_state_dict(model['state_dict'])
     model.eval()
 
     return model
