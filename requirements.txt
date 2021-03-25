@@ -3,3 +3,9 @@
 # Manually managing azure-functions-worker may cause unexpected issues
 
 azure-functions
+scikit-learn
+pytorch
+torchvision
+tensorboardX
+azure-storage-blob
+pandas
