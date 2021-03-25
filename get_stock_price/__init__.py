@@ -1,28 +1,31 @@
 import logging
+from predict import predict_stock_price
 
 import azure.functions as func
 
 
-from .predict import *
+from predict import predict_stock_price
 
 
 def main(req: func.HttpRequest) -> func.HttpResponse:
     logging.info('Python HTTP trigger function processed a request.')
 
-    name = req.params.get('ticker')
+    # GET request or URL www.function.com?ticker=msft
+    ticker = req.params.get('ticker')
 
-    results = predict_image_from_url(image_url)
+    results = predict_stock_price(ticker)
 
-    if not name:
+    if not ticker:
         try:
             req_body = req.get_json()
         except ValueError:
             pass
         else:
-            name = req_body.get('ticker')
+            # POST request with { "ticker": "msft" }
+            ticker = req_body.get('ticker')
 
-    if name:
-        return func.HttpResponse(f"Hello, {name}. This HTTP triggered function executed successfully.")
+    if ticker:
+        return func.HttpResponse(f"Hello, these are the results!!! {results}")
     else:
         return func.HttpResponse(
             "This HTTP triggered function executed successfully. Pass a name in the query string or in the request body for a personalized response.",
