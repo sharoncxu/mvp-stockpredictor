@@ -22,12 +22,12 @@ def get_stock_data_from_ticker(ticker):
         df = df[['Date', 'Close']]
 
         scaler = MinMaxScaler(feature_range=(-1, 1))
-        df_msft = preprocess_data(df)
+        df_msft = preprocess_data(df,scaler)
 
         lookback = 100
-        x_train, y_train, x_test, y_test = split_data(df_msft, lookback)
+        _, _, x_test, y_test = split_data(df_msft, lookback)
 
-        return df, x_test, y_test
+        return scaler, x_test, y_test
     except:
         return "Invalid Ticker"
 
@@ -43,13 +43,13 @@ def evaluate_model(model, x_test, y_test, scaler):
 
 
 def predict_stock_price(ticker):
-    scaler, x_test, y_test = get_stock_data_from_ticker
+    scaler, x_test, y_test = get_stock_data_from_ticker(sys.argv[1])
     result = evaluate_model(model, x_test, y_test, scaler)
     return result
 
 
 if __name__ == '__main__':
-     predict_stock_price(sys.argv[1])
+     predict_stock_price()
 
 
      

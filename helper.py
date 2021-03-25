@@ -92,7 +92,7 @@ def split_data(stock_val, lookback):
     return [x_train, y_train, x_test, y_test]
 
 
-def preprocess_data(df):
+def preprocess_data(df,scaler):
     df_msft = df[['Close']]
     df_msft = df_msft.fillna(method='ffill')
     df_msft['Close'] = scaler.fit_transform(
