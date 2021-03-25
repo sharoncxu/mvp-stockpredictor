@@ -1,14 +1,11 @@
 from urllib.request import urlopen
-
 import sys
 import pandas as pd
 import numpy as np
 from sklearn.preprocessing import MinMaxScaler
-
-
 from helper import *
 
-checkpoint = get_model_from_az_storage()
+model = get_model_from_az_storage()
 
 # extracts the date and close data and
 
@@ -33,7 +30,6 @@ def get_stock_data_from_ticker(ticker):
 
 
 def evaluate_model(model, x_test, y_test, scaler):
-    model.load_state_dict(checkpoint['state_dict'])
     y_test_pred = model(x_test)
 
     # invert predictions
