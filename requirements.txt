@@ -5,7 +5,7 @@
 azure-functions
 scikit-learn
 -f https://download.pytorch.org/whl/torch_stable.html
-pytorch==1.7.1
+torch==1.7.1
 torchvision
 tensorboardX
 azure-storage-blob

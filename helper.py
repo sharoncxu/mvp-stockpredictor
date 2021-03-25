@@ -4,6 +4,27 @@ import torch
 
 from azure.storage.blob import BlobServiceClient
 
+# Model params
+input_dim = 1
+hidden_dim = 32
+num_layers = 2
+output_dim = 1
+num_epochs = 10
+
+class GRU(nn.Module):
+    def __init__(self, input_dim, hidden_dim, num_layers, output_dim):
+        super(GRU, self).__init__()
+        self.hidden_dim = hidden_dim
+        self.num_layers = num_layers
+        
+        self.gru = nn.GRU(input_dim, hidden_dim, num_layers, batch_first=True)
+        self.fc = nn.Linear(hidden_dim, output_dim)
+
+    def forward(self, x):
+        h0 = torch.zeros(self.num_layers, x.size(0), self.hidden_dim).requires_grad_()
+        out, (hn) = self.gru(x, (h0.detach()))
+        out = self.fc(out[:, -1, :])
+        return out
 
 def get_model_from_az_storage():
     model_path = 'checkpoint.pth'
@@ -17,14 +38,16 @@ def get_model_from_az_storage():
     # Get the model from Az Storage
     blob_service_client = BlobServiceClient.from_connection_string(connect_str)
     blob_client = blob_service_client.get_blob_client(
-        container='gru-stock-container', blob='checkpoint.pth')
+        container='gru-stock-container', blob='checkpoint.pth.tar')
 
     with open(os.path.join(tempfile.gettempdir(), model_path), "wb") as my_blob:
         download_stream = blob_client.download_blob()
         my_blob.write(download_stream.readall())
+  
 
     model = torch.load(os.path.join(tempfile.gettempdir(),
-                                    model_path), map_location=torch.device('cpu'))
+                                   model_path), map_location=torch.device('cpu'))
+    model.load_state_dict(checkpoint['state_dict'])
     model.eval()
 
     return model
