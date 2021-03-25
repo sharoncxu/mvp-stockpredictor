@@ -1,7 +1,8 @@
 import os
 import tempfile
 import torch
-
+import numpy as np
+from torch import nn
 from azure.storage.blob import BlobServiceClient
 
 # Model params
@@ -11,23 +12,26 @@ num_layers = 2
 output_dim = 1
 num_epochs = 10
 
+
 class GRU(nn.Module):
     def __init__(self, input_dim, hidden_dim, num_layers, output_dim):
         super(GRU, self).__init__()
         self.hidden_dim = hidden_dim
         self.num_layers = num_layers
-        
+
         self.gru = nn.GRU(input_dim, hidden_dim, num_layers, batch_first=True)
         self.fc = nn.Linear(hidden_dim, output_dim)
 
     def forward(self, x):
-        h0 = torch.zeros(self.num_layers, x.size(0), self.hidden_dim).requires_grad_()
+        h0 = torch.zeros(self.num_layers, x.size(
+            0), self.hidden_dim).requires_grad_()
         out, (hn) = self.gru(x, (h0.detach()))
         out = self.fc(out[:, -1, :])
         return out
 
+
 def get_model_from_az_storage():
-    model_path = 'checkpoint.pth'
+    model_path = 'checkpoint.pth.tar'
 
     # Get environment variable for Az Storage connection string to reference model
     if 'connect_str' in os.environ:
@@ -43,27 +47,15 @@ def get_model_from_az_storage():
     with open(os.path.join(tempfile.gettempdir(), model_path), "wb") as my_blob:
         download_stream = blob_client.download_blob()
         my_blob.write(download_stream.readall())
-  
 
-    model = torch.load(os.path.join(tempfile.gettempdir(),
-                                   model_path), map_location=torch.device('cpu'))
-    model.load_state_dict(model['state_dict'])
+    checkpoint = torch.load(os.path.join(tempfile.gettempdir(),
+                                         model_path), map_location=torch.device('cpu'))
+    model = GRU(input_dim=input_dim, hidden_dim=hidden_dim,
+                output_dim=output_dim, num_layers=num_layers)
+    model.load_state_dict(checkpoint['state_dict'])
     model.eval()
 
-    return model
-
-
-def get_model_prediction(model, input_batch):
-    class_dict = get_class_labels()
-
-    with torch.no_grad():
-        output = model(input_batch)
-
-    # The output has unnormalized scores. To get probabilities, you can run a softmax on it
-    softmax = (torch.nn.functional.softmax(output[0], dim=0))
-    out = class_dict[softmax.argmax().item()]
-
-    return out
+    return checkpoint
 
 
 def split_data(stock_val, lookback):
@@ -92,7 +84,7 @@ def split_data(stock_val, lookback):
     return [x_train, y_train, x_test, y_test]
 
 
-def preprocess_data(df,scaler):
+def preprocess_data(df, scaler):
     df_msft = df[['Close']]
     df_msft = df_msft.fillna(method='ffill')
     df_msft['Close'] = scaler.fit_transform(
