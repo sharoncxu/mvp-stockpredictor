@@ -17,7 +17,7 @@ def get_stock_data_from_ticker(ticker):
     try:
         ticker = str(ticker)
         url = "https://query1.finance.yahoo.com/v7/finance/download/"+ticker + \
-            "?period1=1458000000&period2=1915766400&interval=1d&events=history&includeAdjustedClose=True"
+            "?period1=1458000000&period2=1915766400&interval=p1d&events=history&includeAdjustedClose=True"
         df = pd.read_csv(url, parse_dates=True)
         df = df[['Date', 'Close']]
 
