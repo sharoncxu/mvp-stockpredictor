@@ -48,7 +48,7 @@ def predict_stock_price(ticker):
     return result
 
 
- if __name__ == '__main__':
+if __name__ == '__main__':
      predict_stock_price(sys.argv[1])
 
 
