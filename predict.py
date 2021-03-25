@@ -18,6 +18,7 @@ def get_stock_data_from_ticker(ticker):
         ticker = str(ticker)
         url = "https://query1.finance.yahoo.com/v7/finance/download/"+ticker + \
             "?period1=1458000000&period2=1915766400&interval=1d&events=history&includeAdjustedClose=True"
+        df = pd.read_csv(url, parse_dates=True)
         df = df[['Date', 'Close']]
 
         scaler = MinMaxScaler(feature_range=(-1, 1))
@@ -31,7 +32,7 @@ def get_stock_data_from_ticker(ticker):
         return "Invalid Ticker"
 
 
-def predict_stock_price(model, x_test, y_test, scaler):
+def evaluate_model(model, x_test, y_test, scaler):
     model.eval()
     y_test_pred = model(x_test)
 
@@ -41,9 +42,14 @@ def predict_stock_price(model, x_test, y_test, scaler):
     return y_test_pred
 
 
+def predict_stock_price(ticker):
+    scaler, x_test, y_test = get_stock_data_from_ticker
+    result = evaluate_model(model, x_test, y_test, scaler)
+    return result
+
+
  if __name__ == '__main__':
-     scaler, x_test, y_test = get_stock_data_from_ticker(sys.argv[1])
-     predict_stock_price()
-     
+     predict_stock_price(sys.argv[1])
+
 
      
