@@ -1,0 +1,77 @@
+import os
+import tempfile
+import torch
+
+from azure.storage.blob import BlobServiceClient
+
+
+def get_model_from_az_storage():
+    model_path = 'checkpoint.pth'
+
+    # Get environment variable for Az Storage connection string to reference model
+    if 'connect_str' in os.environ:
+        connect_str = os.environ['connect_str']
+    else:
+        raise Exception('msg', 'connection string not found')
+
+    # Get the model from Az Storage
+    blob_service_client = BlobServiceClient.from_connection_string(connect_str)
+    blob_client = blob_service_client.get_blob_client(
+        container='gru-stock-container', blob='checkpoint.pth')
+
+    with open(os.path.join(tempfile.gettempdir(), model_path), "wb") as my_blob:
+        download_stream = blob_client.download_blob()
+        my_blob.write(download_stream.readall())
+
+    model = torch.load(os.path.join(tempfile.gettempdir(),
+                                    model_path), map_location=torch.device('cpu'))
+    model.eval()
+
+    return model
+
+
+def get_model_prediction(model, input_batch):
+    class_dict = get_class_labels()
+
+    with torch.no_grad():
+        output = model(input_batch)
+
+    # The output has unnormalized scores. To get probabilities, you can run a softmax on it
+    softmax = (torch.nn.functional.softmax(output[0], dim=0))
+    out = class_dict[softmax.argmax().item()]
+
+    return out
+
+
+def split_data(stock_val, lookback):
+    data_raw = stock_val.values  # convert to numpy array
+    data = []
+
+    # create all possible sequences of length seq_len
+    for index in range(len(data_raw) - lookback):
+        data.append(data_raw[index: index + lookback])
+
+    data = np.array(data)
+    test_set_size = int(np.round(0.2*data.shape[0]))
+    train_set_size = data.shape[0] - (test_set_size)
+
+    x_train = data[:train_set_size, :-1, :]
+    y_train = data[:train_set_size, -1, :]
+
+    x_test = data[train_set_size:, :-1]
+    y_test = data[train_set_size:, -1, :]
+
+    x_train = torch.from_numpy(x_train).type(torch.Tensor)
+    x_test = torch.from_numpy(x_test).type(torch.Tensor)
+    y_train = torch.from_numpy(y_train).type(torch.Tensor)
+    y_test = torch.from_numpy(y_test).type(torch.Tensor)
+
+    return [x_train, y_train, x_test, y_test]
+
+
+def preprocess_data(df):
+    df_msft = df[['Close']]
+    df_msft = df_msft.fillna(method='ffill')
+    df_msft['Close'] = scaler.fit_transform(
+        df_msft['Close'].values.reshape(-1, 1))
+    return df_msft
