@@ -50,8 +50,8 @@ def convert_to_list(df, y_pred):
     df = df.tail(len(y_pred))
     df["Predicted"] = y_test_pred_gru
     df_list = df.values.tolist()
-    latest_value = df["Predicted"].tail
-    return df_list, latest_value
+    #latest_value = df["Predicted"].tail
+    return df_list
 
 
 if __name__ == '__main__':
