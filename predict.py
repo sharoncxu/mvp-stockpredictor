@@ -1,11 +1,8 @@
 from urllib.request import urlopen
-
 import sys
 import pandas as pd
 import numpy as np
 from sklearn.preprocessing import MinMaxScaler
-
-
 from helper import *
 
 model = get_model_from_az_storage()
