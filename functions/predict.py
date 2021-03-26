@@ -3,7 +3,7 @@ import sys
 import pandas as pd
 import numpy as np
 from sklearn.preprocessing import MinMaxScaler
-from helper import *
+from .helper import *
 
 model = get_model_from_az_storage()
 
@@ -13,7 +13,7 @@ model = get_model_from_az_storage()
 def get_stock_data_from_ticker(ticker):
     try:
         ticker = str(ticker)
-        url = "https://query1.finance.yahoo.com/v7/finance/download/"+ticker + \
+        url = "https://query1.finance.yahoo.com/v7/finance/download/" + ticker + \
             "?period1=1458000000&period2=9915766400&interval=1d&events=history&includeAdjustedClose=True"
         df = pd.read_csv(url, parse_dates=True)
         df = df[['Date', 'Close']]
