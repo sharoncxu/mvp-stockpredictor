@@ -55,7 +55,7 @@ def get_model_from_az_storage():
     model.load_state_dict(checkpoint['state_dict'])
     model.eval()
 
-    return checkpoint
+    return model
 
 
 def split_data(stock_val, lookback):
