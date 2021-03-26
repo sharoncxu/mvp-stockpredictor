@@ -48,7 +48,7 @@ def predict_stock_price(ticker):
 
 def convert_to_list(df, y_pred):
     df = df.tail(len(y_pred))
-    df["Predicted"] = y_test_pred_gru
+    df["Predicted"] = y_pred
     df_list = df.values.tolist()
     #latest_value = df["Predicted"].tail
     return df_list

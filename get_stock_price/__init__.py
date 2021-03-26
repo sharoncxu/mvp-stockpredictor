@@ -25,7 +25,7 @@ def main(req: func.HttpRequest) -> func.HttpResponse:
             ticker = req_body.get('ticker')
 
     if ticker:
-        return func.HttpResponse(f"Hello, these are the results!!! {results}")
+        return func.HttpResponse(f'{results}')
     else:
         return func.HttpResponse(
             "This HTTP triggered function executed successfully. Pass a name in the query string or in the request body for a personalized response.",
