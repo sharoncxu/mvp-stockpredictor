@@ -1,11 +1,12 @@
-from urllib.request import urlopen
 import sys
 import pandas as pd
 import numpy as np
+from urllib.request import urlopen
 from sklearn.preprocessing import MinMaxScaler
 from .helper import *
 
-model = get_model_from_az_storage()
+
+MODEL = get_model_from_az_storage()
 
 # extracts the date and close data and
 
@@ -41,7 +42,7 @@ def evaluate_model(model, x_test, y_test, scaler):
 
 def predict_stock_price(ticker):
     df, scaler, x_test, y_test = get_stock_data_from_ticker(ticker)
-    result = evaluate_model(model, x_test, y_test, scaler)
+    result = evaluate_model(MODEL, x_test, y_test, scaler)
     result = convert_to_list(df, result)
     return result
 

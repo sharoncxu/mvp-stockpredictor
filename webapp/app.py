@@ -1,6 +1,5 @@
 import requests
 import ast
-import base64
 import pandas as pd
 import numpy as np
 import matplotlib.pyplot as plt
@@ -8,16 +7,12 @@ import matplotlib.ticker as plticker
 import io
 from flask import Flask, render_template, request, Response
 from matplotlib.backends.backend_agg import FigureCanvasAgg as FigureCanvas
-from matplotlib.figure import Figure
-
 
 app = Flask(__name__)
-
 
 @app.route('/')
 def index():
     return 'hello world'
-
 
 @app.route("/ticker/", methods=['POST'])
 def ticker():
