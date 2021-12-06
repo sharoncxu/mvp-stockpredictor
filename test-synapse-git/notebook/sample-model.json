@@ -1,0 +1,401 @@
+{
+	"name": "sample-model",
+	"properties": {
+		"nbformat": 4,
+		"nbformat_minor": 2,
+		"sessionProperties": {
+			"driverMemory": "28g",
+			"driverCores": 4,
+			"executorMemory": "28g",
+			"executorCores": 4,
+			"numExecutors": 2,
+			"conf": {
+				"spark.dynamicAllocation.enabled": "false",
+				"spark.dynamicAllocation.minExecutors": "2",
+				"spark.dynamicAllocation.maxExecutors": "2",
+				"spark.autotune.trackingId": "18706adb-be64-4954-aa70-acb1c8d95aa1"
+			}
+		},
+		"metadata": {
+			"saveOutput": true,
+			"enableDebugMode": false,
+			"kernelspec": {
+				"name": "synapse_pyspark",
+				"display_name": "python"
+			},
+			"language_info": {
+				"name": "python"
+			},
+			"sessionKeepAliveTimeout": 30
+		},
+		"cells": [
+			{
+				"cell_type": "code",
+				"metadata": {
+					"gather": {
+						"logged": 1620175151639
+					}
+				},
+				"source": [
+					"import pandas as pd\r\n",
+					"import numpy as np"
+				],
+				"execution_count": 2
+			},
+			{
+				"cell_type": "code",
+				"metadata": {
+					"jupyter": {
+						"source_hidden": false,
+						"outputs_hidden": false
+					},
+					"nteract": {
+						"transient": {
+							"deleting": false
+						}
+					},
+					"gather": {
+						"logged": 1620175153266
+					},
+					"collapsed": true
+				},
+				"source": [
+					"data = pd.read_csv(\"data.csv\")"
+				],
+				"execution_count": 3
+			},
+			{
+				"cell_type": "code",
+				"metadata": {
+					"jupyter": {
+						"source_hidden": false,
+						"outputs_hidden": false
+					},
+					"nteract": {
+						"transient": {
+							"deleting": false
+						}
+					},
+					"gather": {
+						"logged": 1620175154530
+					},
+					"collapsed": true
+				},
+				"source": [
+					"data.replace(\"?\",np.nan, inplace = True)\r\n",
+					"data = data.astype({\"age\": np.float64, \"fare\":np.float64})"
+				],
+				"execution_count": 4
+			},
+			{
+				"cell_type": "code",
+				"metadata": {
+					"jupyter": {
+						"source_hidden": false,
+						"outputs_hidden": false
+					},
+					"nteract": {
+						"transient": {
+							"deleting": false
+						}
+					},
+					"gather": {
+						"logged": 1620175187955
+					},
+					"collapsed": true
+				},
+				"source": [
+					"import seaborn as sns\r\n",
+					"import matplotlib.pyplot as plt"
+				],
+				"execution_count": 8
+			},
+			{
+				"cell_type": "code",
+				"metadata": {
+					"jupyter": {
+						"source_hidden": false,
+						"outputs_hidden": false
+					},
+					"nteract": {
+						"transient": {
+							"deleting": false
+						}
+					},
+					"gather": {
+						"logged": 1620175195290
+					},
+					"collapsed": true
+				},
+				"source": [
+					"fig, axs = plt.subplots(ncols=5, figsize=(30,5))\r\n",
+					"sns.violinplot(x=\"survived\", y=\"age\", hue=\"sex\", data=data, ax=axs[0])\r\n",
+					"sns.pointplot(x=\"sibsp\", y=\"survived\", hue=\"sex\", data=data, ax=axs[1])\r\n",
+					"sns.pointplot(x=\"parch\", y=\"survived\", hue=\"sex\", data=data, ax=axs[2])\r\n",
+					"sns.pointplot(x=\"pclass\", y=\"survived\", hue=\"sex\", data=data, ax=axs[3])\r\n",
+					"sns.violinplot(x=\"survived\", y=\"fare\", hue=\"sex\", data=data, ax=axs[4])"
+				],
+				"execution_count": 9
+			},
+			{
+				"cell_type": "code",
+				"metadata": {
+					"jupyter": {
+						"source_hidden": false,
+						"outputs_hidden": false
+					},
+					"nteract": {
+						"transient": {
+							"deleting": false
+						}
+					},
+					"gather": {
+						"logged": 1620175202662
+					},
+					"collapsed": true
+				},
+				"source": [
+					"data.replace({'male': 1, 'female':0}, inplace = True)\r\n",
+					"data.corr().abs()[[\"survived\"]]"
+				],
+				"execution_count": null
+			},
+			{
+				"cell_type": "code",
+				"metadata": {
+					"jupyter": {
+						"source_hidden": false,
+						"outputs_hidden": false
+					},
+					"nteract": {
+						"transient": {
+							"deleting": false
+						}
+					},
+					"gather": {
+						"logged": 1620175264259
+					},
+					"collapsed": true
+				},
+				"source": [
+					"data[\"relatives\"] = data.apply (lambda row: int((row['sibsp'] + row['parch'])>0), axis = 1)\r\n",
+					"data.corr().abs()[[\"survived\"]]"
+				],
+				"execution_count": 14
+			},
+			{
+				"cell_type": "code",
+				"metadata": {
+					"jupyter": {
+						"source_hidden": false,
+						"outputs_hidden": false
+					},
+					"nteract": {
+						"transient": {
+							"deleting": false
+						}
+					},
+					"gather": {
+						"logged": 1620175294262
+					},
+					"collapsed": true
+				},
+				"source": [
+					"data = data[['sex', 'pclass','age','relatives','fare','survived']].dropna()"
+				],
+				"execution_count": 16
+			},
+			{
+				"cell_type": "code",
+				"metadata": {
+					"jupyter": {
+						"source_hidden": false,
+						"outputs_hidden": false
+					},
+					"nteract": {
+						"transient": {
+							"deleting": false
+						}
+					},
+					"gather": {
+						"logged": 1620175307065
+					},
+					"collapsed": true
+				},
+				"source": [
+					"from sklearn.model_selection import train_test_split\r\n",
+					"x_train, x_test, y_train, y_test = train_test_split(data[['sex','pclass','age','relatives','fare']], data.survived, test_size=0.2, random_state=0)"
+				],
+				"execution_count": 17
+			},
+			{
+				"cell_type": "code",
+				"metadata": {
+					"jupyter": {
+						"source_hidden": false,
+						"outputs_hidden": false
+					},
+					"nteract": {
+						"transient": {
+							"deleting": false
+						}
+					},
+					"gather": {
+						"logged": 1620175309417
+					},
+					"collapsed": true
+				},
+				"source": [
+					"from sklearn.preprocessing import StandardScaler\r\n",
+					"sc = StandardScaler()\r\n",
+					"X_train = sc.fit_transform(x_train)\r\n",
+					"X_test = sc.transform(x_test)"
+				],
+				"execution_count": 18
+			},
+			{
+				"cell_type": "code",
+				"metadata": {
+					"jupyter": {
+						"source_hidden": false,
+						"outputs_hidden": false
+					},
+					"nteract": {
+						"transient": {
+							"deleting": false
+						}
+					},
+					"gather": {
+						"logged": 1620175311293
+					},
+					"collapsed": true
+				},
+				"source": [
+					"from sklearn.naive_bayes import GaussianNB\r\n",
+					"model = GaussianNB()\r\n",
+					"model.fit(X_train, y_train)"
+				],
+				"execution_count": 19
+			},
+			{
+				"cell_type": "code",
+				"metadata": {
+					"jupyter": {
+						"source_hidden": false,
+						"outputs_hidden": false
+					},
+					"nteract": {
+						"transient": {
+							"deleting": false
+						}
+					},
+					"gather": {
+						"logged": 1620175312648
+					},
+					"collapsed": true
+				},
+				"source": [
+					"from sklearn import metrics\r\n",
+					"predict_test = model.predict(X_test)\r\n",
+					"print(metrics.accuracy_score(y_test, predict_test))"
+				],
+				"execution_count": 20
+			},
+			{
+				"cell_type": "code",
+				"metadata": {
+					"jupyter": {
+						"source_hidden": false,
+						"outputs_hidden": false
+					},
+					"nteract": {
+						"transient": {
+							"deleting": false
+						}
+					},
+					"gather": {
+						"logged": 1620175329324
+					},
+					"collapsed": true
+				},
+				"source": [
+					"from keras.models import Sequential\r\n",
+					"from keras.layers import Dense\r\n",
+					"\r\n",
+					"model = Sequential()"
+				],
+				"execution_count": 21
+			},
+			{
+				"cell_type": "code",
+				"metadata": {
+					"jupyter": {
+						"source_hidden": false,
+						"outputs_hidden": false
+					},
+					"nteract": {
+						"transient": {
+							"deleting": false
+						}
+					},
+					"gather": {
+						"logged": 1620175330182
+					},
+					"collapsed": true
+				},
+				"source": [
+					"model.add(Dense(5, kernel_initializer = 'uniform', activation = 'relu', input_dim = 5))\r\n",
+					"model.add(Dense(5, kernel_initializer = 'uniform', activation = 'relu'))\r\n",
+					"model.add(Dense(1, kernel_initializer = 'uniform', activation = 'sigmoid'))"
+				],
+				"execution_count": 22
+			},
+			{
+				"cell_type": "code",
+				"metadata": {
+					"jupyter": {
+						"source_hidden": false,
+						"outputs_hidden": false
+					},
+					"nteract": {
+						"transient": {
+							"deleting": false
+						}
+					},
+					"gather": {
+						"logged": 1620175546414
+					},
+					"collapsed": true
+				},
+				"source": [
+					"model.compile(optimizer=\"adam\", loss='binary_crossentropy', metrics=['accuracy'])\r\n",
+					"model.fit(X_train, y_train, batch_size=32, epochs=50)"
+				],
+				"execution_count": 26
+			},
+			{
+				"cell_type": "code",
+				"metadata": {
+					"jupyter": {
+						"source_hidden": false,
+						"outputs_hidden": false
+					},
+					"nteract": {
+						"transient": {
+							"deleting": false
+						}
+					},
+					"gather": {
+						"logged": 1620175584749
+					},
+					"collapsed": true
+				},
+				"source": [
+					"y_pred = model.predict_classes(X_test)\r\n",
+					"print(metrics.accuracy_score(y_test, y_pred))"
+				],
+				"execution_count": 27
+			}
+		]
+	}
+}
